@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Nutrients - Optimize Your Performance</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0f7fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header Styling */
+        header {
+            background: linear-gradient(45deg, #0288d1, #03a9f4);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+            animation: fadeInDown 1s ease-in-out;
+        }
+
+        header p {
+            font-size: 1.5em;
+            animation: fadeInUp 1s ease-in-out;
+        }
+
+        /* Container Styling */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #fafdff;
+            font-size: 2em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #0288d1;
+            padding-bottom: 10px;
+            animation: fadeInLeft 1s ease-in-out;
+        }
+
+        p {
+            line-height: 1.6;
+            font-size: 1.2em;
+            animation: fadeInRight 1s ease-in-out;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            max-width: 200px;
+            animation: zoomIn 1s ease-in-out;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-in-out;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #0288d1;
+            outline: none;
+        }
+
+        .form-group button {
+            padding: 15px 30px;
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .form-group button:hover {
+            background-color: #0277bd;
+            transform: scale(1.05);
+        }
+
+        
+        #calorieResult, #dietPlan {
+            font-size: 1.4em;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #b3e5fc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Pro Mode Ad Styling */
+        .pro-mode-ad {
+            background: linear-gradient(45deg, #03daf7, #0c30cf);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 50px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: bounceIn 1s ease-in-out;
+        }
+
+        .pro-mode-ad h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .pro-mode-ad p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .pro-mode-ad .pro-price {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .pro-mode-ad button {
+            background-color: #ffffff;
+            color: rgba(0, 140, 165, 0.418);
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .pro-mode-ad button:hover {
+            background-color: #07d6d6;
+            transform: scale(1.05);
+        }
+
+        /* Popup Ad Styling */
+        .popup-ad {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #0288d1;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+
+        .popup-ad h3 {
+            margin: 0;
+            font-size: 1.8em;
+            color: #0288d1;
+        }
+
+        .popup-ad p {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        .popup-ad button {
+            padding: 10px 20px;
+            background-color: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .popup-ad button:hover {
+            background-color: #0277bd;
+            transform: scale(1.05);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Nutrients - Shit2Fit</title>
+    <style>
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sports Nutrients with Shit2Fit</h1>
+    </header>
+    <div class="container">
+        <h2>Sports Nutrition and Recovery</h2>
+        <p>Enhance your athletic performance and recovery with the right nutrients. Our guide provides essential information on how to fuel your body for optimal results.</p>
+        <p>Whether you're training for a marathon or engaging in regular workouts, a balanced diet is crucial for muscle repair and energy replenishment.</p>
+
+        <div class="calorie-calculator">
+            <h2>Calorie Calculator</h2>
+            <form id="calorieForm">
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Current Weight (kg):</label>
+                    <input type="number" id="weight" name="weight" required>
+                </div>
+                <div class="form-group">
+                    <label for="height">Height (cm):</label>
+                    <input type="number" id="height" name="height" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="activity">Activity Level:</label>
+                    <select id="activity" name="activity">
+                        <option value="sedentary">Sedentary</option>
+                        <option value="light">Lightly active</option>
+                        <option value="moderate">Moderately active</option>
+                        <option value="active">Very active</option>
+                        <option value="extra">Extra active</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="calculateCalories()">Calculate</button>
+                </div>
+            </form>
+            <p id="calorieResult"></p>
+        </div>
+
+        <h2>Recommended Foods for Athletes</h2>
+        <table>
+            <tr>
+                <th>Food</th>
+                <th>Benefits</th>
+            </tr>
+            <tr>
+                <td>Salmon</td>
+                <td>Rich in omega-3 fatty acids and protein for muscle repair.</td>
+            </tr>
+            <tr>
+                <td>Quinoa</td>
+                <td>High in protein and carbohydrates for energy.</td>
+            </tr>
+            <tr>
+                <td>Sweet Potatoes</td>
+                <td>Provides complex carbs and vitamins for energy.</td>
+            </tr>
+            <tr>
+                <td>Spinach</td>
+                <td>Rich in vitamins and minerals for overall health.</td>
+            </tr>
+        </table>
+
+        <!-- Pro Mode Ad Section -->
+        <div class="pro-mode-ad">
+            <h2>Upgrade to Pro Mode!</h2>
+            <p>Get access to personalized meal plans, advanced workout routines, and more.</p>
+            <p class="pro-price">Only $19.99/month</p>
+            <button onclick="showProFeatures()">Upgrade Now</button>
+        </div>
+    </div>
+
+    <!-- Popup Ad -->
+    <div class="popup-ad" id="popupAd">
+        <h3>Special Offer!</h3>
+        <p>Get 50% off on Pro Mode if you sign up today!</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        function calculateCalories() {
+            const age = parseFloat(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const activity = document.getElementById('activity').value;
+
+            if (isNaN(age) || isNaN(weight) || isNaN(height)) {
+                alert('Please fill out all fields correctly.');
+                return;
+            }
+
+            let bmr;
+
+            // Basal Metabolic Rate (BMR) Calculation
+            if (gender === 'male') {
+                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+            } else {
+                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+            }
+
+            let tdee;
+
+            // Total Daily Energy Expenditure (TDEE) Calculation based on activity level
+            switch (activity) {
+                case 'sedentary':
+                    tdee = bmr * 1.2;
+                    break;
+                case 'light':
+                    tdee = bmr * 1.375;
+                    break;
+                case 'moderate':
+                    tdee = bmr * 1.55;
+                    break;
+                case 'active':
+                    tdee = bmr * 1.725;
+                    break;
+                case 'extra':
+                    tdee = bmr * 1.9;
+                    break;
+                default:
+                    tdee = bmr * 1.2;
+            }
+
+            document.getElementById('calorieResult').innerText = `Your daily calorie needs for sports performance are approximately ${Math.round(tdee)} calories.`;
+        }
+
+        function showProFeatures() {
+            alert("Pro Mode includes: \n\n1. Personalized Meal Plans\n2. Advanced Workout Routines\n3. Detailed Progress Tracking\n\nSubscribe now for $19.99/month!");
+        }
+
+        // Popup Ad Logic
+        function showPopup() {
+            document.getElementById('popupAd').style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popupAd').style.display = 'none';
+        }
+
+        // Show the popup when the page loads
+        window.onload = function() {
+            showPopup();
+
+            // Show the popup every 10 seconds
+            setInterval(showPopup, 10000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shit2Fit - Calorie Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #ffffff; /* Light beige */
+    color: #333;
+}
+
+header {
+    background-color: #5a9286; /* Teal green */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for header */
+}
+
+header img {
+    width: 150px;
+    animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px; /* Wider menu for better content fit */
+    margin: 20px auto;
+    background: white; /* Background color for the menu */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for menu */
+}
+
+.menu-item {
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background-color: #fff;
+    transition: background-color 0.3s, box-shadow 0.3s; /* Add box-shadow transition */
+}
+
+.menu-item:hover {
+    color: #4f4f4f;
+    background-color: #ececec; /* Light coral */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Shadow effect on hover */
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.menu-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #5a9286; /* Teal green */
+}
+
+.expand-icon {
+    transition: transform 0.3s;
+}
+
+.menu-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    padding: 0 15px;
+}
+
+.menu-item.active .menu-content {
+    max-height: 500px; /* Adjust based on content size */
+    opacity: 1;
+    padding: 15px;
+}
+
+.menu-item.active .expand-icon {
+    transform: rotate(180deg);
+}
+
+.content {
+    padding: 20px;
+}
+
+.content h2 {
+    color: #5a9286; /* Teal green */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    background: #fff; /* Background for forms */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for forms */
+    margin-top: 10px;
+}
+
+label {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #5a9286; /* Teal green */
+}
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-top: 5px;
+    transition: border 0.3s, box-shadow 0.3s; /* Add box-shadow transition */
+}
+
+input:focus, select:focus {
+    border-color: #5a9286; /* Teal green */
+    box-shadow: 0 0 5px rgba(90, 146, 134, 0.5); /* Subtle focus shadow */
+}
+
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #5a9286; /* Teal green */
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #4a7b69; /* Darker teal green */
+    transform: translateY(-1px);
+}
+
+.toast {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #5a9286; /* Teal green */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    z-index: 1000;
+}
+
+#suggestions {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    position: relative;
+    background-color: white;
+    z-index: 1;
+    width: 100%;
+    margin-top: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#suggestions p {
+    margin: 0;
+    padding: 10px;
+    cursor: pointer;
+}
+
+#suggestions p:hover {
+    background-color: #e59589; /* Light coral */
+}
+
+/* Popup Ad Styles */
+.popup-ad {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    background: #ffffff; /* White background */
+    border: 1px solid #e1e1e1; /* Light grey border */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    animation: slideIn 0.5s ease-out;
+}
+
+.popup-content {
+    padding: 15px;
+    position: relative;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    color: #333; /* Darker text for readability */
+}
+
+img{
+    border-radius: 50%;
+}
+
+.popup-text {
+    font-size: 14px;
+    color: #555; /* Slightly lighter text color */
+    margin: 10px 0;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: #888; /* Grey close button */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #333; /* Darker color on hover */
+}
+
+.cta-button {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background: #e59589; /* Light coral */
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background: #d4736e; /* Darker light coral on hover */
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Shit2Fit Logo">
+        <h1>Shit2Fit - Your Ultimate Calorie Tracker</h1>
+    </header>
+
+    <div class="menu">
+        <div class="menu-item">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                <h3>Home</h3>
+                <span class="expand-icon">&#9660;</span>
+            </div>
+            <div class="menu-content">
+                <div class="content">
+                    <h2>Welcome to Shit2Fit</h2>
+                    <p>Track your calories and manage your diet with ease! Use our tools to calculate your daily caloric needs, track food intake, and manage payment plans.</p>
+                </div>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                <h3>Calorie Calculator</h3>
+                <span class="expand-icon">&#9660;</span>
+            </div>
+            <div class="menu-content">
+                <div class="content">
+                    <h2>Calculate Your Daily Caloric Needs</h2>
+                    <form id="calorie-calculator-form">
+                        <label for="height">Height (cm):</label>
+                        <input type="number" id="height" name="height" required>
+                        <label for="weight">Weight (kg):</label>
+                        <input type="number" id="weight" name="weight" required>
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" name="age" required>
+                        <label for="activity-level">Activity Level:</label>
+                        <select id="activity-level" name="activity-level">
+                            <option value="sedentary">Sedentary</option>
+                            <option value="light">Light</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="active">Active</option>
+                            <option value="very-active">Very Active</option>
+                        </select>
+                        <button type="submit">Calculate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                <h3>Food Tracker</h3>
+                <span class="expand-icon">&#9660;</span>
+            </div>
+            <div class="menu-content">
+                <div class="content">
+                    <h2>Track Your Food Intake</h2>
+                    <form id="food-tracker-form" onsubmit="event.preventDefault(); trackFood();">
+                        <label for="food-item">Food Item:</label>
+                        <input type="text" id="searchInput" placeholder="Search for food..." oninput="showSuggestions()">
+                        <div id="suggestions" style="display: none;"></div>
+                        <label for="amount">Amount (grams):</label>
+                        <input type="number" id="amount" name="amount" required>
+                        <button type="submit">Track Food</button>
+                    </form>
+                    <div id="tracked-food" class="tracked-food"></div>
+                </div>
+            </div>
+        </div>
+        <div class="menu-item">
+            <div class="menu-header" onclick="toggleMenu(this)">
+                <h3>Payment Plan</h3>
+                <span class="expand-icon">&#9660;</span>
+            </div>
+            <div class="menu-content">
+                <div class="content">
+                    <h2>Choose Your Payment Plan</h2>
+                    <form id="payment-plan-form" onsubmit="event.preventDefault(); submitPaymentPlan();">
+                        <label for="plan">Select Plan:</label>
+                        <select id="plan" name="plan">
+                            <option value="basic">Basic - $10/month</option>
+                            <option value="premium">Premium - $20/month</option>
+                            <option value="vip">VIP - $30/month</option>
+                        </select>
+                        <label for="payment-details">Payment Details:</label>
+                        <input type="text" id="payment-details" name="payment-details" placeholder="Credit Card Info" required>
+                        <input type="text" id="payment-details" name="payment-details" placeholder="Password" required>
+                        <input type="text" id="payment-details" name="payment-details" placeholder="Bank Name" required>
+                        <input type="text" id="payment-details" name="payment-details" placeholder="Disaccount Code: 123-456-abc" required>
+                        <button type="submit">Submit Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+
+
+    <script>
+        function toggleMenu(header) {
+            const menuItem = header.parentElement;
+            menuItem.classList.toggle('active');
+        }
+
+        document.getElementById("calorie-calculator-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const height = parseFloat(document.getElementById("height").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+            const age = parseInt(document.getElementById("age").value);
+            const activityLevel = document.getElementById("activity-level").value;
+
+            // Calculate BMR (using Mifflin-St Jeor Equation)
+            let bmr = 10 * weight + 6.25 * height - 5 * age + 5; // For men
+            let calories = bmr * activityMultiplier(activityLevel);
+
+            showToast(`Your daily caloric needs: ${Math.round(calories)} calories`);
+        });
+
+        function activityMultiplier(level) {
+            switch (level) {
+                case "sedentary": return 1.2;
+                case "light": return 1.375;
+                case "moderate": return 1.55;
+                case "active": return 1.725;
+                case "very-active": return 1.9;
+                default: return 1;
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.style.display = "block";
+            setTimeout(() => {
+                toast.style.display = "none";
+            }, 3000);
+        }
+
+        const foodItems  = [
+    { name: "Apple", calories: 52 },
+    { name: "Banana", calories: 96 },
+    { name: "Chicken Breast", calories: 165 },
+    { name: "Egg", calories: 155 },
+    { name: "Rice", calories: 130 },
+    { name: "Broccoli", calories: 55 },
+    { name: "Potato", calories: 130 },
+    { name: "Pasta", calories: 131 },
+    { name: "Beef", calories: 250 },
+    { name: "Fish", calories: 206 },
+    { name: "Almond", calories: 7 },
+    { name: "Avocado", calories: 160 },
+    { name: "Bagel", calories: 250 },
+    { name: "Barley", calories: 123 },
+    { name: "Beet", calories: 43 },
+    { name: "Blueberry", calories: 57 },
+    { name: "Bread (white)", calories: 79 },
+    { name: "Bread (whole wheat)", calories: 81 },
+    { name: "Brown rice", calories: 111 },
+    { name: "Cabbage", calories: 25 },
+    { name: "Cantaloupe", calories: 34 },
+    { name: "Carrot", calories: 41 },
+    { name: "Cashew", calories: 157 },
+    { name: "Cauliflower", calories: 25 },
+    { name: "Celery", calories: 16 },
+    { name: "Cheese (cheddar)", calories: 402 },
+    { name: "Cheese (mozzarella)", calories: 280 },
+    { name: "Chickpeas", calories: 164 },
+    { name: "Coconut (fresh)", calories: 354 },
+    { name: "Corn (sweet)", calories: 86 },
+    { name: "Cucumber", calories: 16 },
+    { name: "Eggplant", calories: 25 },
+    { name: "Garlic", calories: 149 },
+    { name: "Ginger", calories: 80 },
+    { name: "Grapes", calories: 69 },
+    { name: "Kale", calories: 33 },
+    { name: "Kiwi", calories: 61 },
+    { name: "Lentils", calories: 116 },
+    { name: "Lettuce", calories: 5 },
+    { name: "Mango", calories: 60 },
+    { name: "Melon", calories: 34 },
+    { name: "Mushrooms", calories: 22 },
+    { name: "Onion", calories: 40 },
+    { name: "Orange", calories: 47 },
+    { name: "Peach", calories: 39 },
+    { name: "Peas", calories: 81 },
+    { name: "Pineapple", calories: 50 },
+    { name: "Spinach", calories: 23 },
+    { name: "Strawberry", calories: 32 },
+    { name: "Sweet Potato", calories: 86 },
+    { name: "Tomato", calories: 18 },
+    { name: "Zucchini", calories: 17 },
+    { name: "Chili Peppers", calories: 40 },
+    { name: "Pumpkin", calories: 26 },
+    { name: "Pork", calories: 263 },
+    { name: "Turkey", calories: 135 },
+    { name: "Tofu", calories: 76 },
+    { name: "Quinoa", calories: 120 },
+    { name: "Sour Cream", calories: 197 },
+    { name: "Honey", calories: 304 },
+    { name: "Maple Syrup", calories: 260 },
+    { name: "Oats", calories: 68 },
+    { name: "Barbecue Sauce", calories: 70 },
+    { name: "Soy Sauce", calories: 10 },
+    { name: "Wheat Bread", calories: 69 },
+    { name: "Cornbread", calories: 200 },
+    { name: "Ice Cream", calories: 207 },
+    { name: "Yogurt", calories: 59 },
+    { name: "Mayonnaise", calories: 680 },
+    { name: "Ketchup", calories: 20 },
+    { name: "Mustard", calories: 9 },
+    { name: "Soy Milk", calories: 33 },
+    { name: "Almond Milk", calories: 17 },
+    { name: "Coconut Milk", calories: 230 },
+    { name: "Rice Milk", calories: 50 },
+    { name: "Protein Powder", calories: 120 },
+    { name: "Muffin", calories: 375 },
+    { name: "Cake", calories: 237 },
+    { name: "Brownie", calories: 112 },
+    { name: "Cookies", calories: 50 },
+    { name: "Chips", calories: 152 },
+    { name: "Popcorn", calories: 31 },
+    { name: "Nuts (mixed)", calories: 200 },
+    { name: "Trail Mix", calories: 120 },
+    { name: "Energy Bar", calories: 150 },
+    { name: "Granola", calories: 471 },
+    { name: "Fried Chicken", calories: 250 },
+    { name: "Pizza", calories: 285 },
+    { name: "Sushi", calories: 200 },
+    { name: "Pancakes", calories: 77 },
+    { name: "Waffles", calories: 291 },
+    { name: "Doughnut", calories: 250 },
+    { name: "Breadsticks", calories: 80 },
+    { name: "Biscotti", calories: 40 },
+    { name: "Cereal", calories: 110 },
+    { name: "Fruit Smoothie", calories: 200 },
+    { name: "Vegetable Juice", calories: 60 },
+    { name: "Apple Sauce", calories: 100 },
+    { name: "Nut Butter", calories: 200 },
+    { name: "Jelly", calories: 50 },
+    { name: "Pudding", calories: 120 },
+    { name: "Custard", calories: 150 },
+    { name: "Chocolate Milk", calories: 190 },
+    { name: "Grapefruit", calories: 42 },
+    { name: "Blackberries", calories: 43 },
+    { name: "Raspberries", calories: 52 },
+    { name: "Cherries", calories: 63 },
+    { name: "Passion Fruit", calories: 97 },
+    { name: "Lychee", calories: 66 },
+    { name: "Date", calories: 277 },
+    { name: "Figs", calories: 74 },
+    { name: "Pomegranate", calories: 83 },
+    { name: "Cranberries", calories: 46 },
+    { name: "Acorn Squash", calories: 80 },
+    { name: "Butternut Squash", calories: 45 },
+    { name: "Bok Choy", calories: 13 },
+    { name: "Radish", calories: 16 },
+    { name: "Chard", calories: 19 },
+    { name: "Collard Greens", calories: 32 },
+    { name: "Mung Beans", calories: 23 },
+    { name: "Peanuts", calories: 567 },
+    { name: "Walnuts", calories: 654 },
+    { name: "Hazelnuts", calories: 628 },
+    { name: "Pistachios", calories: 562 },
+    { name: "Brazil Nuts", calories: 659 },
+    { name: "Flaxseeds", calories: 534 },
+    { name: "Chia Seeds", calories: 486 },
+    { name: "Pumpkin Seeds", calories: 559 },
+    { name: "Sunflower Seeds", calories: 584 },
+    { name: "Sesame Seeds", calories: 573 },
+    { name: "Seaweed", calories: 35 },
+    { name: "Clams", calories: 74 },
+    { name: "Shrimp", calories: 85 },
+    { name: "Crab", calories: 83 },
+    { name: "Lobster", calories: 90 },
+    { name: "Oysters", calories: 68 },
+    { name: "Scallops", calories: 112 },
+    { name: "Octopus", calories: 82 },
+    { name: "Duck", calories: 337 },
+    { name: "Goat Cheese", calories: 364 },
+    { name: "Ricotta Cheese", calories: 300 },
+    { name: "Feta Cheese", calories: 264 },
+    { name: "Brie Cheese", calories: 334 },
+    { name: "Cottage Cheese", calories: 98 },
+    { name: "Cream Cheese", calories: 350 },
+    { name: "Pesto", calories: 480 },
+    { name: "Salsa", calories: 36 },
+    { name: "Pickles", calories: 11 },
+    { name: "Olives", calories: 115 },
+    { name: "Capers", calories: 23 },
+    { name: "Balsamic Vinegar", calories: 14 },
+    { name: "Olive Oil", calories: 119 },
+    { name: "Coconut Oil", calories: 121 },
+    { name: "Butter", calories: 717 },
+    { name: "Margarine", calories: 717 },
+    { name: "Cooking Spray", calories: 0 },
+    { name: "Vegan Cheese", calories: 300 },
+    { name: "Plant-Based Burger", calories: 200 },
+    { name: "Lentil Soup", calories: 200 },
+    { name: "Tomato Soup", calories: 90 },
+    { name: "Chicken Soup", calories: 100 },
+    { name: "Vegetable Soup", calories: 60 },
+    { name: "Beef Stew", calories: 250 },
+    { name: "Fish Curry", calories: 250 },
+    { name: "Chili", calories: 300 },
+    { name: "Ratatouille", calories: 200 },
+    { name: "Curry", calories: 220 },
+    { name: "Stir Fry", calories: 250 },
+    { name: "Quesadilla", calories: 300 },
+    { name: "Fajitas", calories: 300 },
+    { name: "Burrito", calories: 500 },
+    { name: "Falafel", calories: 150 },
+    { name: "Hummus", calories: 166 },
+    { name: "Tzatziki", calories: 80 },
+    { name: "Taco", calories: 150 },
+    { name: "Samosa", calories: 130 },
+    { name: "Egg Roll", calories: 80 },
+    { name: "Spring Roll", calories: 50 },
+    { name: "Tempura", calories: 250 },
+    { name: "Ceviche", calories: 120 },
+    { name: "Goulash", calories: 300 },
+    { name: "Ramen", calories: 400 },
+    { name: "Soba Noodles", calories: 200 },
+    { name: "Udon Noodles", calories: 230 },
+    { name: "Lasagna", calories: 336 },
+    { name: "Stuffed Peppers", calories: 200 },
+    { name: "Shepherd's Pie", calories: 200 },
+    { name: "Moussaka", calories: 250 },
+    { name: "Casserole", calories: 250 },
+    { name: "Enchiladas", calories: 200 },
+    { name: "Kraft Thousand Island Dressing", calories: 80 },
+    { name: "Hunt's Ketchup", calories: 20 },
+    { name: "A1 Steak Sauce", calories: 30 },
+    { name: "Sriracha Sauce", calories: 0 },
+    { name: "McDonald's Big Mac", calories: 540 },
+    { name: "Taco Bell Crunchy Taco", calories: 170 },
+    { name: "Chipotle Chicken Burrito", calories: 500 },
+    { name: "Pizza Hut Pepperoni Pizza", calories: 300 },
+    { name: "Chick-fil-A Chicken Sandwich", calories: 440 },
+    { name: "Kraft Mac & Cheese Cups", calories: 300 },
+    { name: "Jimmy Dean Sausage", calories: 300 },
+    { name: "Healthy Choice Frozen Meals", calories: 300 },
+    { name: "Amy's Organic Soups", calories: 120 },
+    { name: "Campbell's Chunky Soup", calories: 150 },
+    { name: "Progresso Soup", calories: 100 },
+    { name: "Breyers Ice Cream", calories: 150 },
+    { name: "Halo Top Ice Cream", calories: 70 },
+    { name: "Butterfinger", calories: 250 },
+    { name: "M&M's", calories: 210 },
+    { name: "Toblerone Chocolate", calories: 360 },
+    { name: "Cadbury Creme Egg", calories: 150 },
+    { name: "Milky Way", calories: 240 },
+    { name: "Kraft Ranch Dressing", calories: 140 },
+    { name: "Pillsbury Cinnamon Rolls", calories: 250 },
+    { name: "Duncan Hines Frosting", calories: 150 },
+    { name: "Starbucks Frappuccino", calories: 240 },
+    { name: "Cinnabon Delights (Taco Bell)", calories: 320 },
+    { name: "Kraft Cheddar Cheese", calories: 110 },
+    { name: "Kraft Singles American Cheese", calories: 60 },
+    { name: "Dairy Queen Blizzard", calories: 490 },
+    { name: "Taco Bell Quesadilla", calories: 500 },
+    { name: "Ben & Jerry's Cookie Dough", calories: 240 },
+    { name: "Hostess Twinkies", calories: 150 },
+    { name: "Entenmann's Donuts", calories: 200 },
+    { name: "Blue Bunny Ice Cream", calories: 170 },
+    { name: "Reddi-wip Whipped Cream", calories: 15 },
+    { name: "Dairy Milk Caramel", calories: 540 },
+    { name: "Nestlé Toll House Cookie Dough", calories: 150 },
+    { name: "Little Debbie Swiss Rolls", calories: 200 },
+    { name: "Chobani Flip Yogurt", calories: 200 },
+    { name: "Oikos Greek Yogurt", calories: 100 },
+    { name: "Pasta Roni", calories: 220 },
+    { name: "Lipton Iced Tea", calories: 120 },
+    { name: "Jif Peanut Butter", calories: 180 },
+    { name: "Kraft Dressing", calories: 80 },
+    { name: "Smucker's Jelly", calories: 50 },
+    { name: "Chili Cheese Fritos", calories: 160 },
+    { name: "Kettle Brand Potato Chips", calories: 150 },
+    { name: "Häagen-Dazs Gelato", calories: 250 },
+    { name: "Cinnabon Delights", calories: 320 },
+    { name: "Cup Noodles", calories: 380 },
+    { name: "Doritos Nacho Cheese", calories: 150 },
+    { name: "Cheetos Puffs", calories: 160 },
+    { name: "Coconut Cream Pie (Marie Callender's)", calories: 400 },
+    { name: "Campbell's Tomato Soup", calories: 90 },
+    { name: "Reddi-Wip Whipped Topping", calories: 15 },
+    { name: "Rice-A-Roni", calories: 220 },
+    { name: "Nissin Cup Noodles", calories: 380 },
+    { name: "Rice Krispies Treats", calories: 90 },
+    { name: "Vanilla Pudding (Jell-O)", calories: 100 },
+    { name: "Breyers Vanilla Ice Cream", calories: 130 },
+    { name: "Frozen Corn Dogs", calories: 200 },
+    { name: "Nature Valley Crunchy Granola Bars", calories: 190 },
+    { name: "Wendy's Frosty", calories: 350 },
+    { name: "Reese's Puffs Cereal", calories: 130 },
+    { name: "Jiffy Corn Muffin Mix", calories: 210 },
+    { name: "Cheetos Cheese Puffs", calories: 160 },
+    { name: "Lay's Classic Potato Chips", calories: 150 },
+    { name: "Nestlé Crunch Bar", calories: 210 },
+    { name: "Pepperidge Farm Goldfish", calories: 140 },
+    { name: "Rice Crisps", calories: 130 },
+    { name: "Marie Callender's Chicken Pot Pie", calories: 320 },
+    { name: "Sargento Cheese Slices", calories: 80 },
+    { name: "Aunt Jemima Pancake Mix", calories: 110 },
+    { name: "Kraft BBQ Sauce", calories: 70 },
+    { name: "Coco Pops", calories: 120 },
+    { name: "Cadbury Milk Chocolate", calories: 210 },
+    { name: "Kraft Blue Cheese Dressing", calories: 100 },
+    { name: "Philadelphia Cream Cheese", calories: 100 },
+    { name: "Ritz Crackers", calories: 80 },
+    { name: "Hostess HoHos", calories: 140 },
+    { name: "Pillsbury Pizza Crust", calories: 200 },
+    { name: "Bagel Bites", calories: 190 },
+    { name: "Beverly Hills 90210 Sour Candy", calories: 140 },
+    { name: "Nestlé Coffee-Mate", calories: 30 },
+    { name: "SpaghettiOs", calories: 150 },
+    { name: "Cabbage Rolls (Stouffer's)", calories: 200 },
+    { name: "Marie Callender's Beef Pot Pie", calories: 400 },
+    { name: "Chili (Hormel)", calories: 210 },
+    { name: "Dole Fruit Cups", calories: 80 },
+    { name: "Pasta Sauce (Ragu)", calories: 70 },
+    { name: "Annie's Mac & Cheese", calories: 250 },
+    { name: "Rice Crispy Treats (Kellogg's)", calories: 90 },
+    { name: "Vanilla Ice Cream (Blue Bell)", calories: 140 },
+    { name: "McDonald's Fries", calories: 340 },
+    { name: "Kraft Tartar Sauce", calories: 60 },
+    { name: "Planters Mixed Nuts", calories: 180 },
+    { name: "Pudding Cups (Jell-O)", calories: 90 },
+    { name: "Spice Girls Gummy Snacks", calories: 80 },
+    { name: "Fruit Gushers", calories: 80 },
+    { name: "Cadbury Fruit & Nut Bar", calories: 190 },
+    { name: "Popcorn (Orville Redenbacher)", calories: 150 },
+    { name: "Fruit Snacks (Welch's)", calories: 80 },
+    { name: "Coconut Water (Zico)", calories: 60 },
+    { name: "Gummy Bears (Haribo)", calories: 100 },
+    { name: "Kraft Mac & Cheese (Easy Mac)", calories: 300 },
+    { name: "Quaker Oats Instant Oatmeal", calories: 160 },
+    { name: "Chips Ahoy! Cookies", calories: 160 },
+    { name: "Honey Bunches of Oats", calories: 110 },
+    { name: "Nature Valley Crunchy Granola", calories: 190 },
+    { name: "Vanilla Wafer Cookies (Nilla)", calories: 140 },
+    { name: "Ding Dongs", calories: 140 },
+    { name: "Stouffer's Stuffed Peppers", calories: 250 },
+    { name: "Famous Amos Cookies", calories: 140 },
+    { name: "Sunchips", calories: 140 },
+    { name: "Teddy Grahams", calories: 130 },
+    { name: "Nutrigrain Bars", calories: 130 },
+    { name: "Kraft Singles", calories: 60 },
+    { name: "Pasta Roni (Cheddar)", calories: 210 },
+    { name: "Lucky Charms Marshmallows", calories: 100 },
+    { name: "Frozen Waffles (Eggo)", calories: 120 },
+    { name: "Butterball Turkey Bacon", calories: 70 },
+    { name: "Hawaiian Punch", calories: 150 },
+    { name: "Pasta Sauce (Classico)", calories: 100 },
+    { name: "Pork Rinds", calories: 160 },
+    { name: "Fruit Roll-Ups", calories: 50 },
+    { name: "Skittles", calories: 250 },
+    { name: "Sweetarts", calories: 50 },
+    { name: "Nerds", calories: 60 },
+    { name: "Popcorners", calories: 140 },
+    { name: "Flamin' Hot Cheetos", calories: 160 },
+    { name: "Kettle Corn", calories: 150 },
+    { name: "Go-Gurt", calories: 60 },
+    { name: "Ranch Dressing (Hidden Valley)", calories: 140 },
+    { name: "Sweet Baby Ray's BBQ Sauce", calories: 70 },
+    { name: "Pasta Sauce (Prego)", calories: 80 },
+    { name: "Tropicana Orange Juice", calories: 110 },
+    { name: "Bacardi Mixers", calories: 90 },
+    { name: "Welch's Grape Juice", calories: 150 },
+    { name: "Kraft Italian Dressing", calories: 80 },
+    { name: "Sierra Mist", calories: 140 },
+    { name: "Lemonade (Minute Maid)", calories: 120 },
+    { name: "Sunny D", calories: 120 },
+    { name: "Dannon Activia Yogurt", calories: 100 },
+    { name: "Peanut Butter M&Ms", calories: 210 },
+    { name: "Peanut Butter (Skippy)", calories: 190 },
+    { name: "Nature Valley Protein Bars", calories: 210 },
+    { name: "Kraft Mayo", calories: 100 },
+    { name: "Duncan Hines Brownie Mix", calories: 180 },
+    { name: "Jolly Ranchers", calories: 70 },
+    { name: "Snapple", calories: 100 },
+    { name: "Peanut Butter Cookies", calories: 160 },
+    { name: "Häagen-Dazs Sorbet", calories: 160 },
+    { name: "Dairy Free Ice Cream (So Delicious)", calories: 140 },
+    { name: "Nutty Buddy Ice Cream", calories: 120 },
+    { name: "Teddy Grahams (Chocolate)", calories: 130 },
+    { name: "Bagel Bites (Cheese)", calories: 190 },
+    { name: "Frozen Chicken Nuggets", calories: 240 },
+    { name: "Mac & Cheese Bites", calories: 300 },
+    { name: "S'mores Kit", calories: 300 },
+    { name: "Red Velvet Cake (Duncan Hines)", calories: 220 },
+    { name: "Chocolate Milk (Nesquik)", calories: 160 },
+    { name: "Lemon Bars", calories: 200 },
+    { name: "Rice Pudding (Duncan Hines)", calories: 150 },
+    { name: "Chocolate Syrup (Hershey's)", calories: 110 },
+    { name: "Banana Pudding (Nilla)", calories: 150 },
+    { name: "Pasta Salad (Marie Callender's)", calories: 200 },
+    { name: "Frozen Tater Tots", calories: 200 },
+    { name: "Kraft Sour Cream", calories: 90 },
+    { name: "Stouffer's Meatloaf", calories: 250 },
+    { name: "Ranch Dip (Dairy Dip)", calories: 140 },
+    { name: "Dairy Milk Flake", calories: 530 },
+    { name: "Snickers Ice Cream Bar", calories: 240 },
+    { name: "Fruit Punch (Hawaiian Punch)", calories: 150 },
+    { name: "Dole Pineapple Chunks", calories: 90 },
+    { name: "Kraft Mac & Cheese (Easy Mac Cups)", calories: 300 },
+    { name: "Stouffer's Lasagna", calories: 330 },
+    { name: "Pasta Primavera (Frozen)", calories: 180 },
+    { name: "Baked Beans (Bush's)", calories: 120 },
+    { name: "Fruit Snacks (Mott's)", calories: 80 },
+    { name: "Italian Sausage (Johnsonville)", calories: 300 },
+    { name: "Hawaiian Rolls (King's Hawaiian)", calories: 160 },
+    { name: "Beef Jerky (Jack Link's)", calories: 70 },
+    { name: "Pasta Alfredo (Frozen)", calories: 300 },
+    { name: "Pasta (Ronzoni)", calories: 200 },
+    { name: "Stuffed Crust Pizza (Pizza Hut)", calories: 300 },
+    { name: "Ramen Noodles", calories: 380 },
+    { name: "Cornbread (Jiffy)", calories: 190 },
+    { name: "Dunkin' Donuts Iced Coffee", calories: 150 },
+    { name: "Eggo Waffles", calories: 120 },
+    { name: "M&M's Peanut", calories: 220 },
+    { name: "Crackers (Triscuit)", calories: 120 },
+    { name: "Sausage Links", calories: 190 },
+    { name: "Frozen French Toast Sticks", calories: 220 },
+    { name: "Crustless Quiche (Marie Callender's)", calories: 210 },
+    { name: "Pasta (Barilla)", calories: 200 },
+    { name: "Pasta Salad (Deli)", calories: 250 },
+    { name: "Cheeseballs (Jif)", calories: 160 },
+    { name: "Creamy Peanut Butter (Jif)", calories: 180 },
+    { name: "Ice Cream Bars (Dove)", calories: 240 },
+    { name: "Chocolate Ice Cream Sandwiches", calories: 180 },
+    { name: "Vanilla Yogurt (Yoplait)", calories: 150 },
+    { name: "Banana Cream Pie (Marie Callender's)", calories: 300 },
+    { name: "Coconut Macaroons", calories: 120 },
+    { name: "Maple Syrup (Aunt Jemima)", calories: 110 },
+    { name: "Frozen Berries", calories: 50 },
+    { name: "Peanut Butter M&Ms", calories: 210 },
+    { name: "Energy Drinks (Red Bull)", calories: 110 },
+    { name: "Chocolate Covered Pretzels", calories: 150 },
+    { name: "French Onion Dip (Lipton)", calories: 130 },
+    { name: "Almond Milk (Silk)", calories: 30 },
+    { name: "Vegetable Stir Fry (Frozen)", calories: 100 },
+    { name: "Buffalo Chicken Dip", calories: 220 },
+    { name: "Stuffed Shells (Frozen)", calories: 200 },
+    { name: "Frozen Vegetable Medley", calories: 50 },
+    { name: "Frozen Chicken Patties", calories: 250 },
+    { name: "Pasta Sauce (Barilla)", calories: 100 },
+    { name: "Garlic Bread (Frozen)", calories: 180 },
+    { name: "Honey Bunches of Oats (Cereal)", calories: 110 },
+    { name: "Frozen Egg Rolls", calories: 200 },
+    { name: "Shrimp Fried Rice (Frozen)", calories: 220 },
+    { name: "Carrot Cake (Duncan Hines)", calories: 200 },
+    { name: "Chicken Taquitos (Frozen)", calories: 190 },
+    { name: "Beef Tacos (Frozen)", calories: 200 },
+    { name: "Teriyaki Chicken (Frozen)", calories: 300 },
+    { name: "Alfredo Sauce (Classico)", calories: 80 },
+    { name: "Chicken Parmesan (Frozen)", calories: 300 },
+    { name: "Bacon (Hormel)", calories: 160 },
+    { name: "Sliced Turkey (Oscar Mayer)", calories: 50 },
+    { name: "Frozen Vegetable Soup", calories: 150 },
+    { name: "Nutri-Grain Bars", calories: 130 },
+    { name: "Pork Tenderloin (Frozen)", calories: 180 },
+    { name: "Greek Yogurt (Chobani)", calories: 100 },
+    { name: "Lentil Soup (Amy's)", calories: 150 },
+    { name: "Coconut Curry Soup (Thai Kitchen)", calories: 150 },
+    { name: "Lentils (Dry)", calories: 200 },
+    { name: "Vegetarian Chili (Amy's)", calories: 220 },
+    { name: "Granola (Nature Valley)", calories: 190 },
+    { name: "Frozen Vegetable Spring Rolls", calories: 150 },
+    { name: "Hummus (Sabra)", calories: 100 },
+    { name: "Beef Enchiladas (Frozen)", calories: 240 },
+    { name: "Spinach & Feta Stuffed Chicken", calories: 300 },
+    { name: "Frozen Chicken Wings", calories: 250 },
+    { name: "Chicken Fried Rice (Frozen)", calories: 220 },
+    { name: "Frozen Burritos", calories: 300 },
+    { name: "Chicken Fajitas (Frozen)", calories: 250 },
+    { name: "Teriyaki Chicken Bowl (Frozen)", calories: 300 },
+    { name: "Creamed Spinach (Frozen)", calories: 200 },
+    { name: "Shrimp Scampi (Frozen)", calories: 220 },
+    { name: "Stuffed Peppers (Frozen)", calories: 250 },
+    { name: "Spinach & Cheese Tortellini", calories: 300 },
+    { name: "Vegetable Lo Mein (Frozen)", calories: 220 },
+    { name: "Shrimp Fried Rice (Frozen)", calories: 220 },
+    { name: "Pasta Primavera (Frozen)", calories: 180 },
+    { name: "Chicken Burritos (Frozen)", calories: 290 },
+    { name: "Beef Stroganoff (Frozen)", calories: 400 },
+    { name: "Chili Mac (Frozen)", calories: 300 },
+    { name: "Vegetable Fried Rice (Frozen)", calories: 250 },
+    { name: "Cheese Pizza (Frozen)", calories: 300 },
+    { name: "Vegetable Curry (Frozen)", calories: 220 },
+    { name: "Fruit Smoothie (Frozen)", calories: 180 },
+    { name: "Pasta Salad (Deli)", calories: 250 },
+    { name: "Vegetarian Enchiladas (Frozen)", calories: 300 },
+    { name: "Falafel Mix", calories: 150 },
+    { name: "Koshari", calories: 350 },
+    { name: "Molokhia", calories: 120 },
+    { name: "Fattah", calories: 450 },
+    { name: "Tameya", calories: 250 },
+    { name: "Mahshi", calories: 300 },
+    { name: "Moussaka", calories: 400 },
+    { name: "Grilled Kofta", calories: 250 },
+    { name: "Sliced Gyro", calories: 300 },
+    { name: "Shawarma Sandwich", calories: 500 },
+    { name: "Kebda (Liver Sandwich)", calories: 450 },
+    { name: "Sweets (Basbousa)", calories: 250 },
+    { name: "Kunafa", calories: 300 },
+    { name: "Baklava", calories: 300 },
+    { name: "Molokhia with Rabbit", calories: 350 },
+    { name: "Beef Tagine", calories: 400 },
+    { name: "Chicken Tagine", calories: 350 },
+    { name: "Seafood Soup", calories: 300 },
+    { name: "Fish Sayadiya", calories: 400 },
+    { name: "Stuffed Grape Leaves", calories: 250 },
+    { name: "Grilled Fish", calories: 250 },
+    { name: "Baked Beans", calories: 200 },
+    { name: "Vegetable Couscous", calories: 200 },
+    { name: "Red Lentil Soup", calories: 180 },
+    { name: "Stuffed Zucchini", calories: 250 },
+    { name: "Sushi", calories: 300 },
+    { name: "Lentil Salad", calories: 250 },
+    { name: "Fried Eggplant", calories: 200 },
+    { name: "Fried Chicken", calories: 400 },
+    { name: "Spicy Chicken Wings", calories: 400 },
+    { name: "Mixed Grill", calories: 600 },
+    { name: "Baked Macaroni and Cheese", calories: 300 },
+    { name: "Spaghetti Bolognese", calories: 400 },
+    { name: "Pasta Arrabbiata", calories: 350 },
+    { name: "Seafood Paella", calories: 450 },
+    { name: "Fish Curry", calories: 350 },
+    { name: "Grilled Shrimp", calories: 250 },
+    { name: "Falafel Sandwich", calories: 400 },
+    { name: "Cheesy Garlic Bread", calories: 250 },
+    { name: "Vegetable Stir-fry", calories: 200 },
+    { name: "Fried Rice", calories: 300 },
+    { name: "Chicken Quesadilla", calories: 400 },
+    { name: "Tacos", calories: 250 },
+    { name: "Chili con Carne", calories: 350 },
+    { name: "BBQ Ribs", calories: 500 },
+    { name: "Grilled Chicken Caesar Salad", calories: 350 },
+    { name: "Caesar Salad", calories: 250 },
+    { name: "Greek Salad", calories: 150 },
+    { name: "Tabbouleh", calories: 120 },
+    { name: "Fatoush", calories: 100 },
+    { name: "Fried Calamari", calories: 300 },
+    { name: "Hummus with Pita", calories: 300 },
+    { name: "Mediterranean Platter", calories: 400 },
+    { name: "Beef Kebabs", calories: 250 },
+    { name: "Chicken Kebabs", calories: 250 },
+    { name: "Lamb Chops", calories: 400 },
+    { name: "Stuffed Bell Peppers", calories: 300 },
+    { name: "Vegetable Soup", calories: 150 },
+    { name: "Pasta Salad with Tuna", calories: 250 },
+    { name: "Grilled Vegetable Sandwich", calories: 250 },
+    { name: "Roasted Chicken", calories: 400 },
+    { name: "Beef Bourguignon", calories: 400 },
+    { name: "Vegetarian Chili", calories: 250 },
+    { name: "Chicken Curry", calories: 400 },
+    { name: "Vegetable Samosa", calories: 150 },
+    { name: "Falafel Bowl", calories: 400 },
+    { name: "Baklava Bites", calories: 200 },
+    { name: "Stuffed Peppers with Quinoa", calories: 300 },
+    { name: "Coconut Curry Chicken", calories: 400 },
+    { name: "Chicken Pita", calories: 350 },
+    { name: "Cheese Stuffed Peppers", calories: 250 },
+    { name: "Vegetarian Pad Thai", calories: 300 },
+    { name: "Chicken Shawarma Plate", calories: 600 },
+    { name: "Gyro Platter", calories: 500 },
+    { name: "Vegetable Biryani", calories: 400 },
+    { name: "Paneer Tikka", calories: 300 },
+    { name: "Vegetable Pakora", calories: 150 },
+    { name: "Chicken Korma", calories: 450 },
+    { name: "Chicken Vindaloo", calories: 400 },
+    { name: "Lamb Rogan Josh", calories: 500 },
+    { name: "Vegetable Korma", calories: 300 },
+    { name: "Spinach Roti", calories: 150 },
+    { name: "Potato Chips", calories: 150 },
+    { name: "Fried Potato Wedges", calories: 200 },
+    { name: "Rice Pilaf", calories: 200 },
+    { name: "Lentil Curry", calories: 300 },
+    { name: "Biryani with Chicken", calories: 450 },
+    { name: "Vegetable Samosa", calories: 150 },
+    { name: "Mixed Green Salad", calories: 100 },
+    { name: "Cabbage Roll Soup", calories: 150 },
+    { name: "Spinach & Feta Stuffed Chicken", calories: 300 },
+    { name: "Eggplant Parmesan", calories: 400 },
+    { name: "Shrimp Tacos", calories: 350 },
+    { name: "Cajun Chicken Pasta", calories: 500 },
+    { name: "Tandoori Chicken", calories: 300 },
+    { name: "BBQ Chicken Pizza", calories: 400 },
+    { name: "Pasta with Meat Sauce", calories: 400 },
+    { name: "Fried Chicken Sandwich", calories: 400 },
+    { name: "Teriyaki Beef", calories: 300 },
+    { name: "Coconut Rice", calories: 200 },
+    { name: "Vegetable Stir Fry with Tofu", calories: 300 },
+    { name: "Grilled Salmon", calories: 300 },
+    { name: "Shrimp Scampi Pasta", calories: 450 },
+    { name: "Egg Drop Soup", calories: 120 },
+    { name: "Corn on the Cob", calories: 100 },
+    { name: "Clam Chowder", calories: 250 },
+    { name: "Chicken and Waffles", calories: 500 },
+    { name: "Spaghetti with Marinara Sauce", calories: 350 },
+    { name: "Stuffed Shells with Ricotta", calories: 400 },
+    { name: "Pasta with Pesto Sauce", calories: 400 },
+    { name: "Tomato Basil Soup", calories: 150 },
+    { name: "Pasta Alfredo with Chicken", calories: 600 },
+    { name: "Shrimp Pad Thai", calories: 500 },
+    { name: "Vegetable Noodles", calories: 300 },
+    { name: "Vegetable Fried Rice with Tofu", calories: 300 },
+    { name: "Chicken Fried Rice with Vegetables", calories: 400 },
+    { name: "Sweet Potato Fries", calories: 150 },
+    { name: "Vegetable Curry with Rice", calories: 400 },
+    { name: "Pasta Primavera with Chicken", calories: 600 },
+    { name: "Buffalo Cauliflower Wings", calories: 200 },
+    { name: "Grilled Cheese Sandwich", calories: 400 },
+    { name: "Eggplant Parmesan with Spaghetti", calories: 500 },
+    { name: "Mushroom Risotto", calories: 400 },
+    { name: "Stuffed Mushrooms", calories: 300 },
+    { name: "Chili Chicken", calories: 350 },
+    { name: "Chicken Enchiladas", calories: 400 },
+    { name: "Spaghetti with Pesto Sauce", calories: 400 },
+    { name: "Vegetable Lasagna", calories: 300 },
+    { name: "Shrimp and Grits", calories: 450 },
+    { name: "Pasta Salad with Vegetables", calories: 250 },
+    { name: "Vegetable Quesadilla", calories: 300 },
+    { name: "Falafel Plate", calories: 400 },
+    { name: "Coconut Shrimp", calories: 350 },
+    { name: "Roasted Cauliflower", calories: 200 },
+    { name: "Lemon Herb Chicken", calories: 400 },
+    { name: "Chicken and Broccoli Stir-Fry", calories: 350 },
+    { name: "Vegetable Chow Mein", calories: 300 },
+    { name: "Shrimp Fried Rice with Egg", calories: 400 },
+    { name: "Sweet Potato Casserole", calories: 300 },
+    { name: "Mango Sticky Rice", calories: 300 },
+    { name: "Fish Tacos", calories: 350 },
+    { name: "Baked Ziti", calories: 400 },
+    { name: "Vegetarian Burrito", calories: 300 },
+    { name: "Chicken Salad Sandwich", calories: 400 },
+    { name: "Cauliflower Rice", calories: 150 },
+    { name: "Grilled Eggplant", calories: 200 },
+    { name: "Chicken Caesar Wrap", calories: 400 },
+    { name: "Lamb Burger", calories: 400 },
+    { name: "Crab Cakes", calories: 300 },
+    { name: "Vegetable Biryani with Raita", calories: 400 },
+    { name: "Buffalo Chicken Dip with Tortilla Chips", calories: 400 },
+    { name: "Grilled Chicken Sandwich", calories: 400 },
+    { name: "Meatball Sub", calories: 400 },
+    { name: "Shrimp and Crab Pasta", calories: 450 },
+    { name: "Chicken Piccata", calories: 400 },
+    { name: "Chicken Stir Fry", calories: 350 },
+    { name: "Grilled Chicken Tacos", calories: 350 },
+    { name: "Stuffed Portobello Mushrooms", calories: 300 },
+    { name: "Spaghetti with Meatballs", calories: 400 },
+    { name: "Vegetable Omelette", calories: 300 },
+    { name: "Eggplant Rollatini", calories: 400 },
+    { name: "Chicken Pesto Pasta", calories: 400 },
+    { name: "Shrimp Alfredo Pasta", calories: 500 },
+    { name: "Vegetable Pad See Ew", calories: 300 },
+    { name: "Vegetarian Pasta Primavera", calories: 400 },
+    { name: "Baked Falafel", calories: 300 },
+    { name: "Seafood Risotto", calories: 400 },
+    { name: "Cheeseburger", calories: 500 },
+    { name: "Tuna Salad Sandwich", calories: 400 },
+    { name: "Chicken Pot Pie", calories: 500 },
+    { name: "Turkey Burger", calories: 400 },
+    { name: "Baked Potato with Sour Cream", calories: 200 },
+    { name: "Chicken Shawarma Wrap", calories: 400 },
+    { name: "Chicken Fried Rice with Shrimp", calories: 400 },
+    { name: "Salmon Burger", calories: 400 },
+    { name: "Crab Fried Rice", calories: 400 },
+    { name: "Beef and Broccoli Stir Fry", calories: 350 },
+    { name: "Chicken and Dumplings", calories: 500 },
+    { name: "Roasted Brussels Sprouts", calories: 200 },
+    { name: "Stuffed Acorn Squash", calories: 300 },
+    { name: "Garlic Parmesan Wings", calories: 400 },
+    { name: "Chicken Noodle Soup", calories: 250 },
+    { name: "Beef and Cheese Nachos", calories: 400 },
+    { name: "Beef Stroganoff with Egg Noodles", calories: 500 },
+    { name: "Vegetable Fried Rice with Shrimp", calories: 400 },
+    { name: "Jambalaya", calories: 400 },
+    { name: "Shrimp Creole", calories: 400 },
+    { name: "BBQ Chicken Wings", calories: 500 },
+    { name: "Shrimp Tacos with Mango Salsa", calories: 400 },
+    { name: "Chicken Burrito Bowl", calories: 450 },
+    { name: "Beef Tacos with Salsa", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken", calories: 350 },
+    { name: "Beef and Bean Chili", calories: 400 },
+    { name: "Shrimp Lo Mein", calories: 350 },
+    { name: "Baked Eggplant Parmesan", calories: 500 },
+    { name: "Chicken and Rice Casserole", calories: 500 },
+    { name: "Baked Sweet Potato", calories: 200 },
+    { name: "Vegetable Lasagna with Spinach", calories: 400 },
+    { name: "Seafood Pasta Primavera", calories: 450 },
+    { name: "Vegetarian Pizza", calories: 300 },
+    { name: "Stuffed Peppers with Beef", calories: 400 },
+    { name: "Pasta with Tomato Sauce", calories: 350 },
+    { name: "Chili Macaroni and Cheese", calories: 400 },
+    { name: "Vegetable Sushi", calories: 300 },
+    { name: "Baked Ziti with Sausage", calories: 500 },
+    { name: "Chicken Fettuccine Alfredo", calories: 600 },
+    { name: "Mushroom and Spinach Quesadilla", calories: 400 },
+    { name: "Vegetable Quinoa Bowl", calories: 350 },
+    { name: "Shrimp and Vegetable Stir Fry", calories: 400 },
+    { name: "Lentil Soup with Spinach", calories: 200 },
+    { name: "Spicy Chicken Tacos", calories: 400 },
+    { name: "Chicken Katsu", calories: 400 },
+    { name: "Pasta Salad with Chickpeas", calories: 250 },
+    { name: "Stuffed Cabbage Rolls", calories: 300 },
+    { name: "Crab Rangoon", calories: 300 },
+    { name: "Vegetable Soup with Quinoa", calories: 150 },
+    { name: "Vegetable Quiche", calories: 300 },
+    { name: "Chicken Quesadilla with Salsa", calories: 400 },
+    { name: "Vegetable Biryani with Chicken", calories: 500 },
+    { name: "Grilled Chicken Fajitas", calories: 400 },
+    { name: "Vegetable Fried Rice with Beef", calories: 400 },
+    { name: "Lentil Curry with Rice", calories: 300 },
+    { name: "Mushroom Risotto with Spinach", calories: 400 },
+    { name: "Stuffed Zucchini with Quinoa", calories: 300 },
+    { name: "Mushroom and Pea Risotto", calories: 400 },
+    { name: "Chicken and Rice Bowl", calories: 400 },
+    { name: "Vegetable Pasta with Garlic Sauce", calories: 350 },
+    { name: "Beef Tacos with Guacamole", calories: 400 },
+    { name: "Shrimp and Grits with Cheese", calories: 500 },
+    { name: "Shrimp Fried Rice with Vegetables", calories: 400 },
+    { name: "Spaghetti with Alfredo Sauce", calories: 400 },
+    { name: "Shrimp and Vegetable Fajitas", calories: 400 },
+    { name: "Vegetarian Stuffed Peppers", calories: 300 },
+    { name: "Chicken Salad with Avocado", calories: 400 },
+    { name: "Grilled Chicken Sandwich with Avocado", calories: 400 },
+    { name: "Stuffed Portobello with Quinoa", calories: 300 },
+    { name: "Pasta Salad with Tuna and Vegetables", calories: 300 },
+    { name: "Chicken Alfredo Pizza", calories: 500 },
+    { name: "Tandoori Chicken Tacos", calories: 400 },
+    { name: "Vegetable Couscous with Chickpeas", calories: 300 },
+    { name: "Pasta Salad with Chicken and Vegetables", calories: 400 },
+    { name: "Spaghetti with Shrimp and Garlic", calories: 500 },
+    { name: "Vegetable Curry with Chickpeas", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken", calories: 400 },
+    { name: "Chicken Teriyaki", calories: 400 },
+    { name: "Beef Stir Fry with Vegetables", calories: 400 },
+    { name: "Shrimp and Broccoli Stir Fry", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Black Beans", calories: 350 },
+    { name: "Spaghetti with Meat Sauce and Vegetables", calories: 500 },
+    { name: "Vegetable Quinoa Salad", calories: 250 },
+    { name: "Taco Salad", calories: 300 },
+    { name: "Chicken and Vegetable Stir Fry", calories: 400 },
+    { name: "Vegetable Pasta Salad", calories: 250 },
+    { name: "Cheeseburger Pizza", calories: 500 },
+    { name: "Vegetable Stir Fry with Tofu and Rice", calories: 400 },
+    { name: "Shrimp Fried Rice with Egg and Vegetables", calories: 400 },
+    { name: "Baked Chicken Parmesan", calories: 500 },
+    { name: "Vegetable Lo Mein with Chicken", calories: 400 },
+    { name: "Chicken and Black Bean Burrito", calories: 500 },
+    { name: "Vegetable Stir Fry with Beef", calories: 400 },
+    { name: "Stuffed Cabbage Rolls with Rice", calories: 350 },
+    { name: "Vegetable Soup with Rice", calories: 200 },
+    { name: "Shrimp Fried Rice with Chicken", calories: 400 },
+    { name: "Vegetable Fried Rice with Tofu and Egg", calories: 400 },
+    { name: "Mango Chicken", calories: 400 },
+    { name: "Vegetable Lo Mein with Shrimp", calories: 400 },
+    { name: "Grilled Chicken Fajitas with Guacamole", calories: 400 },
+    { name: "Vegetable Fried Rice with Crab", calories: 400 },
+    { name: "Seafood Pasta Salad", calories: 400 },
+    { name: "Grilled Salmon Salad", calories: 400 },
+    { name: "Roasted Vegetable Salad", calories: 300 },
+    { name: "Vegetarian Stuffed Zucchini", calories: 300 },
+    { name: "Stuffed Sweet Potatoes", calories: 300 },
+    { name: "Cajun Shrimp Pasta", calories: 450 },
+    { name: "Vegetable Sushi Rolls", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Shrimp and Avocado Salad", calories: 300 },
+    { name: "Vegetable Stir Fry with Tofu and Rice Noodles", calories: 400 },
+    { name: "Vegetarian Chili with Quinoa", calories: 300 },
+    { name: "Chicken Tikka Masala", calories: 450 },
+    { name: "Shrimp and Vegetable Lo Mein", calories: 400 },
+    { name: "Vegetarian Quesadilla with Cheese", calories: 300 },
+    { name: "Grilled Chicken with Rice", calories: 400 },
+    { name: "Vegetable Pad Thai with Tofu", calories: 350 },
+    { name: "Beef and Vegetable Stir Fry", calories: 400 },
+    { name: "Stuffed Peppers with Chicken", calories: 400 },
+    { name: "Vegetable Fried Rice with Tofu and Vegetables", calories: 400 },
+    { name: "Chicken and Vegetable Pasta", calories: 400 },
+    { name: "Mushroom and Vegetable Stir Fry", calories: 350 },
+    { name: "Vegetable Curry with Tofu", calories: 300 },
+    { name: "Chicken and Cheese Quesadilla", calories: 400 },
+    { name: "Shrimp and Vegetable Curry", calories: 400 },
+    { name: "Vegetable Pasta with Pesto Sauce", calories: 400 },
+    { name: "Chicken and Vegetable Burrito", calories: 500 },
+    { name: "Vegetarian Stuffed Acorn Squash", calories: 300 },
+    { name: "Stuffed Portobello with Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Shrimp Tacos with Cabbage Slaw", calories: 400 },
+    { name: "Stuffed Acorn Squash with Quinoa", calories: 300 },
+    { name: "Chicken and Rice Bowl with Vegetables", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice", calories: 400 },
+    { name: "Mango Chicken with Rice", calories: 400 },
+    { name: "Vegetarian Paella", calories: 400 },
+    { name: "Grilled Chicken Fajitas with Rice", calories: 400 },
+    { name: "Shrimp and Avocado Toast", calories: 350 },
+    { name: "Stuffed Peppers with Rice and Cheese", calories: 350 },
+    { name: "Chicken and Vegetable Skewers", calories: 400 },
+    { name: "Vegetarian Chili with Rice", calories: 300 },
+    { name: "Shrimp Stir Fry with Vegetables", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Black Beans", calories: 300 },
+    { name: "Vegetable Pasta with Marinara Sauce", calories: 350 },
+    { name: "Grilled Vegetable Skewers", calories: 200 },
+    { name: "Vegetarian Stuffed Portobello Mushrooms", calories: 300 },
+    { name: "Roasted Sweet Potato Salad", calories: 300 },
+    { name: "Shrimp and Vegetable Fried Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Noodles", calories: 400 },
+    { name: "Chicken and Vegetable Quesadilla", calories: 400 },
+    { name: "Vegetarian Burrito Bowl", calories: 300 },
+    { name: "Spaghetti with Meatballs and Marinara Sauce", calories: 500 },
+    { name: "Vegetable Pasta with Garlic and Olive Oil", calories: 350 },
+    { name: "Baked Sweet Potato with Black Beans", calories: 300 },
+    { name: "Stuffed Bell Peppers with Turkey", calories: 400 },
+    { name: "Grilled Salmon with Asparagus", calories: 400 },
+    { name: "Vegetarian Stir Fry with Rice", calories: 400 },
+    { name: "Shrimp and Vegetable Stir Fry with Rice", calories: 400 },
+    { name: "Vegetarian Sushi Rolls with Avocado", calories: 300 },
+    { name: "Chicken and Vegetable Stir Fry with Rice", calories: 400 },
+    { name: "Vegetarian Pasta Primavera with Broccoli", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Beans", calories: 350 },
+    { name: "Vegetable Pasta Salad with Chickpeas", calories: 300 },
+    { name: "Shrimp Fried Rice with Black Beans", calories: 400 },
+    { name: "Vegetable Stir Fry with Tofu and Vegetables", calories: 400 },
+    { name: "Vegetable Fried Rice with Black Beans", calories: 400 },
+    { name: "Shrimp Fried Rice with Vegetables and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Rice and Vegetables", calories: 300 },
+    { name: "Vegetable Soup with Pasta", calories: 200 },
+    { name: "Shrimp and Rice Bowl", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice Noodles", calories: 400 },
+    { name: "Vegetarian Pizza with Veggies", calories: 300 },
+    { name: "Stuffed Zucchini with Vegetables", calories: 300 },
+    { name: "Chicken and Vegetable Stir Fry with Noodles", calories: 400 },
+    { name: "Vegetable Fried Rice with Quinoa", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese", calories: 300 },
+    { name: "Vegetable Curry with Rice and Beans", calories: 300 },
+    { name: "Shrimp and Vegetable Quesadilla", calories: 400 },
+    { name: "Baked Eggplant with Cheese", calories: 500 },
+    { name: "Vegetarian Curry with Rice", calories: 300 },
+    { name: "Stuffed Peppers with Quinoa and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Rice Noodles", calories: 400 },
+    { name: "Vegetarian Stir Fry with Noodles", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Rice Noodles", calories: 400 },
+    { name: "Stuffed Peppers with Cheese and Vegetables", calories: 350 },
+    { name: "Vegetable Curry with Tofu and Vegetables", calories: 300 },
+    { name: "Stuffed Portobello with Chicken and Cheese", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Quinoa", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Rice", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Vegetables", calories: 400 },
+    { name: "Vegetarian Stuffed Peppers with Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Pasta Salad with Rice", calories: 300 },
+    { name: "Stuffed Zucchini with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Stir Fry with Shrimp and Rice", calories: 400 },
+    { name: "Stuffed Acorn Squash with Cheese", calories: 300 },
+    { name: "Shrimp and Cheese Quesadilla", calories: 400 },
+    { name: "Vegetarian Chili with Rice and Beans", calories: 300 },
+    { name: "Stuffed Portobello with Rice", calories: 300 },
+    { name: "Shrimp and Rice Noodles", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Vegetable Stir Fry with Beef and Rice", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Vegetables and Cheese", calories: 300 },
+    { name: "Vegetable Curry with Chickpeas and Rice", calories: 300 },
+    { name: "Vegetarian Stir Fry with Rice Noodles", calories: 400 },
+    { name: "Stuffed Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Egg Noodles", calories: 400 },
+    { name: "Shrimp and Rice Noodles with Vegetables", calories: 400 },
+    { name: "Vegetable Fried Rice with Egg", calories: 400 },
+    { name: "Stuffed Zucchini with Quinoa and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Quinoa and Vegetables", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken", calories: 300 },
+    { name: "Vegetable Curry with Rice and Chickpeas", calories: 300 },
+    { name: "Stuffed Bell Peppers with Chicken and Cheese", calories: 400 },
+    { name: "Vegetable Stir Fry with Tofu and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Vegetarian Stuffed Acorn Squash with Quinoa", calories: 300 },
+    { name: "Shrimp and Rice Bowl with Vegetables", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Tofu and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Quinoa and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Egg Noodles", calories: 400 },
+    { name: "Stuffed Portobello with Quinoa and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Vegetables", calories: 300 },
+    { name: "Vegetable Curry with Chickpeas and Tofu", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Quinoa", calories: 400 },
+    { name: "Shrimp and Vegetable Fried Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Vegetables", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Egg", calories: 400 },
+    { name: "Vegetarian Chili with Cheese", calories: 300 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Curry with Rice and Vegetables", calories: 300 },
+    { name: "Vegetable Stir Fry with Shrimp and Tofu", calories: 400 },
+    { name: "Stuffed Zucchini with Rice and Cheese", calories: 300 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Stuffed Bell Peppers with Turkey and Cheese", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Chicken", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Chicken", calories: 300 },
+    { name: "Stuffed Peppers with Rice and Meat", calories: 400 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Vegetables", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Vegetables and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Quinoa and Chicken", calories: 300 },
+    { name: "Vegetable Curry with Tofu and Chickpeas", calories: 300 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Quinoa", calories: 400 },
+    { name: "Vegetable Fried Rice with Quinoa and Chicken", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Shrimp and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Tofu and Chicken", calories: 400 },
+    { name: "Vegetable Fried Rice with Shrimp and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Tofu and Shrimp", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Vegetables and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Zucchini with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+    { name: "Vegetable Fried Rice with Chicken and Egg", calories: 400 },
+    { name: "Stuffed Acorn Squash with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Stuffed Peppers with Quinoa and Cheese", calories: 350 },
+    { name: "Vegetable Stir Fry with Tofu and Cheese", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Cheese", calories: 300 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Shrimp", calories: 400 },
+    { name: "Vegetable Stir Fry with Quinoa and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Chicken and Rice", calories: 300 },
+    { name: "Vegetable Stir Fry with Chicken and Tofu", calories: 400 },
+    { name: "Vegetable Fried Rice with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Chicken", calories: 400 },
+    { name: "Vegetable Stir Fry with Rice and Beans", calories: 400 },
+    { name: "Stuffed Bell Peppers with Chicken and Rice", calories: 400 },
+    { name: "Vegetable Stir Fry with Chicken and Rice", calories: 400 },
+    { name: "Stuffed Peppers with Rice and Vegetables", calories: 350 },
+    { name: "Vegetable Stir Fry with Chicken and Cheese", calories: 400 },
+    { name: "Stuffed Sweet Potatoes with Cheese and Vegetables", calories: 300 },
+
+
+];
+
+
+        function showSuggestions() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const results = foodItems.filter(item => item.name.toLowerCase().includes(query));
+            const suggestionsDiv = document.getElementById("suggestions");
+            suggestionsDiv.innerHTML = '';
+
+            if (results.length > 0) {
+                suggestionsDiv.style.display = 'block';
+                results.forEach(item => {
+                    const suggestion = document.createElement("p");
+                    suggestion.textContent = `${item.name} - ${item.calories} calories`;
+                    suggestion.onclick = () => selectSuggestion(item.name);
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        }
+
+        function selectSuggestion(foodName) {
+            document.getElementById("searchInput").value = foodName;
+            document.getElementById("suggestions").style.display = 'none';
+        }
+
+        function trackFood() {
+            const amount = parseFloat(document.getElementById("amount").value);
+            const foodName = document.getElementById("searchInput").value;
+            const foodItem = foodItems.find(item => item.name === foodName);
+            const trackedFoodDiv = document.getElementById("tracked-food");
+            if (foodItem) {
+                const totalCalories = (foodItem.calories / 100) * amount;
+                trackedFoodDiv.innerHTML += `<p>${amount}g of ${foodName}: ${Math.round(totalCalories)} calories</p>`;
+                showToast(`Tracked ${amount}g of ${foodName}: ${Math.round(totalCalories)} calories`);
+            } else {
+                showToast(`Food item not found!`);
+            }
+        }
+
+        document.getElementById("payment-plan-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const plan = document.getElementById("plan").value;
+            const paymentDetails = document.getElementById("payment-details").value;
+            showToast(`Payment submitted for ${plan}. Details: ${paymentDetails}`);
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Ad Example</title>
+
+</head>
+<body>
+    <div id="popup-ad" class="popup-ad">
+        <div class="popup-content">
+            <span id="close-btn" class="close-btn">&times;</span>
+            <h2 class="popup-title">Special Offer!</h2>
+            <p class="popup-text">Get 20% off on your next purchase. Limited time only!</p>
+            <a href="#" class="cta-button">Shop Now</a>
+        </div>
+    </div>
+
+    <script>
+        function showPopup() {
+            const popup = document.getElementById('popup-ad');
+            popup.style.display = 'block';
+            popup.style.opacity = 1;
+        }
+
+        function hidePopup() {
+            const popup = document.getElementById('popup-ad');
+            popup.style.animation = 'fadeOut 0.5s ease-out';
+            popup.style.opacity = 0;
+            setTimeout(() => {
+                popup.style.display = 'none';
+                popup.style.animation = ''; // Reset animation for future shows
+            }, 500); // Matches animation duration
+        }
+
+        // Show the popup every 10 seconds
+        setInterval(() => {
+            showPopup();
+            setTimeout(hidePopup, 8000); // Hide after 8 seconds to give time for the ad to be read
+        }, 10000);
+
+        // Close button functionality
+        document.getElementById('close-btn').addEventListener('click', hidePopup);
+    </script>
+</body>
+</html>

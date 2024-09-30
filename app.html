@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shit2Fit Presentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d4cbbc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            position: relative;
+        }
+        .slide {
+            display: none;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .active {
+            display: block;
+        }
+        .nav-buttons {
+            margin-top: 20px;
+        }
+        .nav-buttons button {
+            background-color: #e59589;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+        .nav-buttons button:hover {
+            background-color: #d47a77;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slide active">
+            <h1>Welcome to Shit2Fit</h1>
+            <p>Introduction to our nutrient information.</p>
+        </div>
+        <div class="slide">
+            <h2>Slide 1 Title</h2>
+            <p>Details about Slide 1.</p>
+        </div>
+        <!-- Repeat for all 15 slides -->
+        <div class="slide">
+            <h2>Slide 15 Title</h2>
+            <p>Details about Slide 15.</p>
+        </div>
+        <div class="nav-buttons">
+            <button onclick="prevSlide()">Previous</button>
+            <button onclick="nextSlide()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+    </script>
+</body>
+</html>
